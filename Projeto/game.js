@@ -12,10 +12,11 @@ let createRect = (x, y, width, height, color) => {
 // Configurações do jogo:
 let fps = 30;                                               // Frames por segundo (taxa de atualização do jogo)
 let oneBlockSize = 20;                                      // Tamamho de cada "bloco" no mapa
-let wallColor = "#2121de";                                  // Cor das paredes (azul)
+let wallColor = "#1515B5";                                  // Cor das paredes (azul)
 let wallSpaceWidth = oneBlockSize / 1.3;                    // Largura das bordas internas das paredes
 let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;       // Distancia entre as bordas internas
 let wallInnerColor = "black";                               // Cor das bordas internas das paredes (preto)
+let foodColor = "#FFB998";
 
 const DIRECTION_RIGHT = 4;
 const DIRECTION_UP = 3;
@@ -58,10 +59,27 @@ let update = () => {
     pacman.moveProcess()
 };
 
+let drawFoods = () => {
+    for(let i = 0; i < map.length; i++){
+        for(let j = 0; j < map[0].length; j++){
+            if(map[i][j] == 2){
+                createRect(
+                    j * oneBlockSize + oneBlockSize / 3, 
+                    i * oneBlockSize + oneBlockSize / 3, 
+                    oneBlockSize / 4, 
+                    oneBlockSize / 4, 
+                    foodColor
+                );
+            }
+        }
+    }
+};
+
 // Função para desenhar tudo na tela
 let draw = () => {
     createRect(0, 0, canvas.width, canvas.height, "black"); // Limpa a tela, desenhando um retângulo preto para o fundo
-    drawWalls();                                            // Desenha as paredes do labirinto
+    drawWalls();  
+    drawFoods();                                          // Desenha as paredes do labirinto
     pacman.draw();
 };
 
