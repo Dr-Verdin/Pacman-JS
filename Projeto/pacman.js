@@ -79,7 +79,17 @@ class Pacman {
     }
 
     changeDirectionIfPossible(){
+        if(this.direction == this.nextDirection) return;
 
+        let tempDirection = this.direction;
+        this.direction = this.nextDirection;
+        this.moveForwards();
+        if(this.checkCollision()){
+            this.moveBackwards();
+            this.direction = tempDirection;
+        } else {
+            this.moveBackwards();
+        }
     }
 
     changeAnimation(){
@@ -92,7 +102,7 @@ class Pacman {
             this.x + oneBlockSize / 2, 
             this.y + oneBlockSize / 2
         );
-        canvasContext.rotate((this.direction * 90 * Math.PI) / 100);
+        canvasContext.rotate((this.direction * 90 * Math.PI) / 180);
 
         canvasContext.translate(
             -this.x - oneBlockSize / 2, 
