@@ -1,8 +1,8 @@
 # Pacman-JS
 
 Check-list:
-- local dos fantasmas
-- winner e game over
+1. local dos fantasmas
+2. winner e game over
 --------------------------------
-- portal
-- power dots
+3. portal
+4. power dots
