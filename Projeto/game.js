@@ -1,29 +1,38 @@
-const canvas = document.getElementById('canvas');           // Obtem o elemento do canvas no HTML
+const canvas = document.getElementById("canvas");           // Obtem o elemento do canvas no HTML
 const canvasContext = canvas.getContext("2d");              // Obtem o contexto 2d do canvas, que permite desenhar nele
 const pacmanFrames = document.getElementById("animations");     // Obtem o elemento de imagem com o id "pacman" para animar o Pac-Man
 const ghostFrames = document.getElementById("ghosts");      // Obtem o elemento de imagem com o id "ghosts" para animar os fantasmas
 
-// Função para desenhar retângulos (usadas paras paredes e outros elementos)
 let createRect = (x, y, width, height, color) => {
-    canvasContext.fillStyle = color;                // Define a cor de preencimento 
-    canvasContext.fillRect(x, y, width, height);    // Desenha o retangulo
+    canvasContext.fillStyle = color;               
+    canvasContext.fillRect(x, y, width, height);   
 };
-
-// Configurações do jogo:
-let fps = 30;                                               // Frames por segundo (taxa de atualização do jogo)
-let oneBlockSize = 20;                                      // Tamamho de cada "bloco" no mapa
-let wallColor = "#1515B5";                                  // Cor das paredes (azul)
-let wallSpaceWidth = oneBlockSize / 1.3;                    // Largura das bordas internas das paredes
-let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;       // Distancia entre as bordas internas
-let wallInnerColor = "black";                               // Cor das bordas internas das paredes (preto)
-let foodColor = "#FFB998";
 
 const DIRECTION_RIGHT = 4;
 const DIRECTION_UP = 3;
 const DIRECTION_LEFT = 2;
 const DIRECTION_BOTTOM = 1;
 
-// Mapa do jogo: 1 representa as paredes e 2 representa espaços vazios
+let lives = 3;
+let ghostCount = 4;
+let ghostLocations = [
+    {x: 0, y: 0 },
+    {x: 176, y: 0 },
+    {x: 0, y: 121 },
+    {x: 176, y: 121 }
+];
+
+let fps = 30;
+let ghosts = [];                                    
+let oneBlockSize = 20;                                      
+let wallColor = "#1515B5"; 
+let score = 0;  
+let foodCount = 220;                      
+let wallSpaceWidth = oneBlockSize / 1.3;                   
+let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;      
+let wallInnerColor = "black";                               
+let foodColor = "#FFB998";
+
 let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1],
@@ -48,15 +57,94 @@ let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-// Função principal do loop do jogo, que é chamada repetidamente
-let gameLoop = () => {
-    update()    // Atualiza o estado do jogo
-    draw()      // Desenha os elementos na tela
+let randomTargetsForGhosts = [
+    {x: 1 * oneBlockSize, y: 1 * oneBlockSize},
+    {x: 1 * oneBlockSize, y: (map.length - 2) * oneBlockSize},
+    {x: (map[0].length - 2) * oneBlockSize, y: oneBlockSize },
+    {x: (map[0].length - 2) * oneBlockSize, y: (map.length - 2) * oneBlockSize }
+];
+
+let createNewPacman =() => {
+    pacman = new Pacman(
+        oneBlockSize,
+        oneBlockSize,
+        oneBlockSize,
+        oneBlockSize,
+        oneBlockSize / 5
+    );
 };
 
-// Função para atualizar o estado do jogo
+let gameLoop = () => {
+    draw(); 
+    update();    
+};
+
 let update = () => {
-    pacman.moveProcess()
+    pacman.moveProcess();
+    pacman.eat();
+
+    for(let i = 0; i < ghosts.length; i++) {
+        ghosts[i].moveProcess();
+    }
+
+    if(pacman.checkGhostCollision()){
+        console.log("hit");
+        restartGame();
+    }
+
+    if(score >= (foodCount * 10)){
+        drawWin();
+        clearInterval(gameInterval);
+    }
+};
+
+let restartGame = () => {
+    createNewPacman();
+    createGhosts();
+    lives--;
+
+    if(lives == 0){
+        gameOver();
+    }
+};
+
+gameOver = () => {
+    drawGameOver();
+    clearInterval(gameInterval);
+};
+
+let drawGameOver = () => {
+    canvasContext.font = "20px Emulogic"
+    canvasContext.fillStyle = "white";
+    canvasContext.fillText("Game Over", 150, 200);
+};
+
+let drawWin = () => {
+    canvasContext.font = "20px Emulogic"
+    canvasContext.fillStyle = "white";
+    canvasContext.fillText("Winner", 150, 200);
+};
+
+let drawLives = () => {
+    canvasContext.font = "20px Emulogic"
+    canvasContext.fillStyle = "white";
+    canvasContext.fillText(
+        "Lives: ",
+        220,
+        oneBlockSize * (map.length + 1) + 5
+    );
+
+    for(let i = 0; i < lives; i++){
+        canvasContext.drawImage(
+            pacmanFrames,
+            2 * oneBlockSize,
+            0,
+            oneBlockSize, oneBlockSize, 
+            285 + i * oneBlockSize, 
+            oneBlockSize * map.length + 12,
+            oneBlockSize, oneBlockSize
+        )
+    }
 };
 
 let drawFoods = () => {
@@ -75,25 +163,32 @@ let drawFoods = () => {
     }
 };
 
-// Função para desenhar tudo na tela
+let drawScore = () => {
+    canvasContext.font = "20px Emulogic";
+    canvasContext.fillStyle = "white";
+    canvasContext.fillText(
+        " High Score: " + score,
+        0,
+        oneBlockSize * (map.length + 1) + 5
+    );
+} 
+    
 let draw = () => {
-    createRect(0, 0, canvas.width, canvas.height, "black"); // Limpa a tela, desenhando um retângulo preto para o fundo
+    createRect(0, 0, canvas.width, canvas.height, "black"); 
     drawWalls();  
-    drawFoods();                                          // Desenha as paredes do labirinto
+    drawFoods();                                          
     pacman.draw();
+    drawScore();                                        
+    drawGhosts();
+    drawLives();
 };
 
-// Intervalo que chama a função gameLoop a cada "1/fps" segundos
 let gameInterval = setInterval(gameLoop, 1000/fps);
 
-// Função para desenhar as paredes no mapa, com bordas internas
 let drawWalls = () => {
-    // Percorre cada célula do mapa
     for(let i = 0; i  < map.length; i++){
         for(let j = 0; j < map[0].length; j++){
-            // Se a célula for uma parede (== 1)
             if(map[i][j] == 1){
-                // Desenha a parede principal
                 createRect(
                     j * oneBlockSize, 
                     i * oneBlockSize, 
@@ -102,7 +197,6 @@ let drawWalls = () => {
                     wallColor
                 );
 
-                // Desenha as bordas internas, se existirem (se houver paredes adjacentes)
                 if(j > 0 && map[i][j-1] == 1){
                     createRect(
                         j * oneBlockSize, 
@@ -144,17 +238,27 @@ let drawWalls = () => {
     }
 };
 
-let createNewPacman =() => {
-    pacman = new Pacman(
-        oneBlockSize,
-        oneBlockSize,
-        oneBlockSize,
-        oneBlockSize,
-        oneBlockSize / 5
-    )
+let createGhosts = () => {
+    ghost = [];
+    for(let i = 0; i < ghostCount; i++){
+        let newGhost = new Ghost(
+            9 * oneBlockSize * (i%2 == 0 ? 0 : 1) * oneBlockSize,
+            10 * oneBlockSize * (i%2 == 0 ? 0 : 1) * oneBlockSize,
+            oneBlockSize,
+            oneBlockSize,
+            pacman.speed/2,
+            ghostLocations(i % 4).x,
+            ghostLocations(i % 4).y,
+            124,
+            116,
+            6 + i
+        );
+        ghosts.push(newGhost);
+    }
 };
 
 createNewPacman();
+createGhosts();
 gameLoop();
 
 window.addEventListener("keydown", () => {
