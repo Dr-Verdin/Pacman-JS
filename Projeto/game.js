@@ -143,7 +143,7 @@ let drawScore = () => {
     canvasContext.font = "20px Emulogic";
     canvasContext.fillStyle = "white";
     canvasContext.fillText(
-        " High Score: " + score,
+        "High Score: " + score,
         0,
         oneBlockSize * (map.length + 1) + 5
     );
@@ -215,15 +215,15 @@ let drawWalls = () => {
 
 let createGhosts = () => {
     ghosts = [];
-    for(let i = 0; i < ghostCount * 2; i++){
+    for(let i = 0; i < ghostCount; i++){
         let newGhost = new Ghost(
             9 * oneBlockSize + (i%2 == 0 ? 0 : 1) * oneBlockSize,
             10 * oneBlockSize + (i%2 == 0 ? 0 : 1) * oneBlockSize,
             oneBlockSize,
             oneBlockSize,
             pacman.speed / 2,
-            ghostLocations(i % 4).x,
-            ghostLocations(i % 4).y,
+            ghostImageLocations[i % 4].x,
+            ghostImageLocations[i % 4].y,
             124,
             116,
             6 + i

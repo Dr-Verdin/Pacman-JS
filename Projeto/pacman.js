@@ -92,7 +92,7 @@ class Pacman {
 
             if(
                 ghost.getMapX() == this.getMapX() && 
-                ghost.getMapY() == this.getMapY
+                ghost.getMapY() == this.getMapY()
             ){
                 return true;
             }
