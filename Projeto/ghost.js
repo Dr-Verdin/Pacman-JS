@@ -112,7 +112,7 @@ class Ghost {
 
         if(
             this.getMapY() != this.getMapYRightSide() &&
-            (this.direction == DIRECTION_LEFT || 
+            (this.direction == DIRECTION_LEFT ||
                 this.direction == DIRECTION_RIGHT)
         ){
             this.direction = DIRECTION_UP;
@@ -140,7 +140,7 @@ class Ghost {
             mp[i] = map[i].slice();
         }
 
-        let queue =[
+        let queue = [
             {
                 x: this.getMapX(),
                 y: this.getMapY(),
@@ -165,7 +165,7 @@ class Ghost {
             }
         }
 
-        return DIRECTION_BOTTOM; // default
+        return 1; // direction
     }
 
     addNeighbors(poped, mp){
@@ -174,8 +174,8 @@ class Ghost {
         let numOfColumns = mp[0].length;
 
         if(
-            poped.x - 1 >= 0 && 
-            poped.x - 1 < numOfRows && 
+            poped.x - 1 >= 0 &&
+            poped.x - 1 < numOfRows &&
             mp[poped.y][poped.x - 1] != 1
         ){
             let tempMoves = poped.moves.slice();
@@ -183,12 +183,12 @@ class Ghost {
             queue.push({
                 x:poped.x - 1,
                 y:poped.y,
-                moves:tempMoves,
+                moves:tempMoves
             });
         }
         if(
-            poped.x + 1 >= 0 && 
-            poped.x + 1 < numOfRows && 
+            poped.x + 1 >= 0 &&
+            poped.x + 1 < numOfRows &&
             mp[poped.y][poped.x + 1] != 1
         ){
             let tempMoves = poped.moves.slice();
@@ -196,12 +196,12 @@ class Ghost {
             queue.push({
                 x:poped.x + 1,
                 y:poped.y,
-                moves:tempMoves,
+                moves:tempMoves
             });
         }
         if(
-            poped.y - 1 >= 0 && 
-            poped.y - 1 < numOfColumns && 
+            poped.y - 1 >= 0 &&
+            poped.y - 1 < numOfColumns &&
             mp[poped.y - 1][poped.x] != 1
         ){
             let tempMoves = poped.moves.slice();
@@ -209,13 +209,13 @@ class Ghost {
             queue.push({
                 x:poped.x,
                 y:poped.y - 1,
-                moves:tempMoves,
+                moves:tempMoves
             });
         }
 
         if(
-            poped.y + 1 >= 0 && 
-            poped.y + 1 < numOfColumns && 
+            poped.y + 1 >= 0 &&
+            poped.y + 1 < numOfColumns &&
             mp[poped.y + 1][poped.x] != 1
         ){
             let tempMoves = poped.moves.slice();
@@ -223,7 +223,7 @@ class Ghost {
             queue.push({
                 x:poped.x,
                 y:poped.y + 1,
-                moves:tempMoves,
+                moves:tempMoves
             });
         }
 
@@ -231,27 +231,28 @@ class Ghost {
     }
 
     getMapX(){
-        let mapX = parseInt(this.x  / oneBlockSize);
+        let mapX = parseInt(this.x / oneBlockSize);
         return mapX;
     }
 
     getMapY(){
-        let mapY = parseInt(this.y  / oneBlockSize);
+        let mapY = parseInt(this.y / oneBlockSize);
         return mapY;
     }
 
     getMapXRightSide(){
-        let mapX = parseInt((this.x * 0.99 + oneBlockSize ) / oneBlockSize);
+        let mapX = parseInt((this.x * 0.99 + oneBlockSize) / oneBlockSize);
         return mapX;
     }
 
     getMapYRightSide(){
-        let mapY = parseInt((this.y * 0.99 + oneBlockSize ) / oneBlockSize);
+        let mapY = parseInt((this.y * 0.99 + oneBlockSize) / oneBlockSize);
         return mapY;
     }
 
     changeAnimation(){
-        this.currentFrame = this.currentFrame == this.frameCount ? 1 : this.currentFrame + 1;
+        this.currentFrame =
+            this.currentFrame == this.frameCount ? 1 : this.currentFrame + 1;
     }
 
     draw(){

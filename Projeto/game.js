@@ -1,11 +1,11 @@
-const canvas = document.getElementById("canvas");        
-const canvasContext = canvas.getContext("2d");              
-const pacmanFrames = document.getElementById("animation");    
-const ghostFrames = document.getElementById("ghosts");      
+const canvas = document.getElementById("canvas");
+const canvasContext = canvas.getContext("2d");
+const pacmanFrames = document.getElementById("animation");
+const ghostFrames = document.getElementById("ghosts");
 
 let createRect = (x, y, width, height, color) => {
-    canvasContext.fillStyle = color;               
-    canvasContext.fillRect(x, y, width, height);   
+    canvasContext.fillStyle = color;
+    canvasContext.fillRect(x, y, width, height);
 };
 
 const DIRECTION_RIGHT = 4;
@@ -16,10 +16,10 @@ const DIRECTION_BOTTOM = 1;
 let lives = 3;
 let ghostCount = 4;
 let ghostImageLocations = [
-    {x: 0, y: 0 },
-    {x: 176, y: 0 },
-    {x: 0, y: 121 },
-    {x: 176, y: 121 }
+    { x: 0, y: 0 },
+    { x: 176, y: 0 },
+    { x: 0, y: 121 },
+    { x: 176, y: 121 },
 ];
 
 let fps = 30;
@@ -28,7 +28,7 @@ let ghosts = [];
 let oneBlockSize = 20;                                      
 let score = 0;                    
 let wallSpaceWidth = oneBlockSize / 1.3;                   
-let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;      
+let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;
 let wallInnerColor = "black";
 
 let map = [
@@ -56,10 +56,10 @@ let map = [
 ];
 
 let randomTargetsForGhosts = [
-    {x: 1 * oneBlockSize, y: 1 * oneBlockSize},
-    {x: 1 * oneBlockSize, y: (map.length - 2) * oneBlockSize},
-    {x: (map[0].length - 2) * oneBlockSize, y: oneBlockSize },
-    {x: (map[0].length - 2) * oneBlockSize, y: (map.length - 2) * oneBlockSize }
+    { x: 1 * oneBlockSize, y: 1 * oneBlockSize },
+    { x: 1 * oneBlockSize, y: (map.length - 2) * oneBlockSize },
+    { x: (map[0].length - 2) * oneBlockSize, y: oneBlockSize },
+    { x: (map[0].length - 2) * oneBlockSize, y: (map.length - 2) * oneBlockSize },
 ];
 
 let createNewPacman = () => {
@@ -73,11 +73,11 @@ let createNewPacman = () => {
 };
 
 let gameLoop = () => {
-    update();  
-    draw();   
+    update();
+    draw();
 };
 
-let gameInterval = setInterval(gameLoop, 1000/fps);
+let gameInterval = setInterval(gameLoop, 1000 / fps);
 
 let restartPacmanAndGhosts = () => {
     createNewPacman();
@@ -106,10 +106,10 @@ let drawFoods = () => {
         for(let j = 0; j < map[0].length; j++){
             if(map[i][j] == 2){
                 createRect(
-                    j * oneBlockSize + oneBlockSize / 3, 
-                    i * oneBlockSize + oneBlockSize / 3, 
-                    oneBlockSize / 4, 
-                    oneBlockSize / 4, 
+                    j * oneBlockSize + oneBlockSize / 3,
+                    i * oneBlockSize + oneBlockSize / 3,
+                    oneBlockSize / 4,
+                    oneBlockSize / 4,
                     "#FFB998"
                 );
             }
@@ -151,12 +151,12 @@ let drawScore = () => {
 
 let draw = () => {
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-    createRect(0, 0, canvas.width, canvas.height, "black"); 
-    drawWalls();  
+    createRect(0, 0, canvas.width, canvas.height, "black");
+    drawWalls();
     drawFoods();
-    drawGhosts();                                          
+    drawGhosts();
     pacman.draw();
-    drawScore();                                        
+    drawScore();
     drawRemainingLives();
 };
 
@@ -165,17 +165,17 @@ let drawWalls = () => {
         for(let j = 0; j < map[0].length; j++){
             if(map[i][j] == 1){
                 createRect(
-                    j * oneBlockSize, 
-                    i * oneBlockSize, 
-                    oneBlockSize, 
-                    oneBlockSize, 
+                    j * oneBlockSize,
+                    i * oneBlockSize,
+                    oneBlockSize,
+                    oneBlockSize,
                     "#1515B5"
                 );
 
                 if(j > 0 && map[i][j-1] == 1){
                     createRect(
-                        j * oneBlockSize, 
-                        i * oneBlockSize + wallOffset, 
+                        j * oneBlockSize,
+                        i * oneBlockSize + wallOffset,
                         wallSpaceWidth + wallOffset,
                         wallSpaceWidth,
                         wallInnerColor
@@ -183,8 +183,8 @@ let drawWalls = () => {
                 }
                 if(j < map[0].length - 1 && map[i][j+1] == 1){
                     createRect(
-                        j * oneBlockSize + wallOffset, 
-                        i * oneBlockSize + wallOffset, 
+                        j * oneBlockSize + wallOffset,
+                        i * oneBlockSize + wallOffset,
                         wallSpaceWidth + wallOffset,
                         wallSpaceWidth,
                         wallInnerColor
@@ -192,8 +192,8 @@ let drawWalls = () => {
                 }
                 if(i < map.length - 1 && map[i+1][j] == 1){
                     createRect(
-                        j * oneBlockSize + wallOffset, 
-                        i * oneBlockSize + wallOffset, 
+                        j * oneBlockSize + wallOffset,
+                        i * oneBlockSize + wallOffset,
                         wallSpaceWidth,
                         wallSpaceWidth + wallOffset,
                         wallInnerColor
@@ -202,7 +202,7 @@ let drawWalls = () => {
                 if(i > 0 && map[i-1][j] == 1){
                     createRect(
                         j * oneBlockSize + wallOffset,
-                        i * oneBlockSize, 
+                        i * oneBlockSize,
                         wallSpaceWidth,
                         wallSpaceWidth + wallOffset,
                         wallInnerColor
@@ -217,11 +217,11 @@ let createGhosts = () => {
     ghosts = [];
     for(let i = 0; i < ghostCount * 2; i++){
         let newGhost = new Ghost(
-            9 * oneBlockSize * (i%2 == 0 ? 0 : 1) * oneBlockSize,
-            10 * oneBlockSize * (i%2 == 0 ? 0 : 1) * oneBlockSize,
+            9 * oneBlockSize + (i%2 == 0 ? 0 : 1) * oneBlockSize,
+            10 * oneBlockSize + (i%2 == 0 ? 0 : 1) * oneBlockSize,
             oneBlockSize,
             oneBlockSize,
-            pacman.speed/2,
+            pacman.speed / 2,
             ghostLocations(i % 4).x,
             ghostLocations(i % 4).y,
             124,
@@ -236,7 +236,7 @@ createNewPacman();
 createGhosts();
 gameLoop();
 
-window.addEventListener("keydown", () => {
+window.addEventListener("keydown", (event) => {
     let k = event.keyCode;
 
     setTimeout(() => {
@@ -250,4 +250,4 @@ window.addEventListener("keydown", () => {
             pacman.nextDirection = DIRECTION_BOTTOM;
         }
     }, 1);
-})
+});
