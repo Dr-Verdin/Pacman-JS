@@ -1,7 +1,7 @@
-const canvas = document.getElementById("canvas");           // Obtem o elemento do canvas no HTML
-const canvasContext = canvas.getContext("2d");              // Obtem o contexto 2d do canvas, que permite desenhar nele
-const pacmanFrames = document.getElementById("animations");     // Obtem o elemento de imagem com o id "pacman" para animar o Pac-Man
-const ghostFrames = document.getElementById("ghosts");      // Obtem o elemento de imagem com o id "ghosts" para animar os fantasmas
+const canvas = document.getElementById("canvas");        
+const canvasContext = canvas.getContext("2d");              
+const pacmanFrames = document.getElementById("animation");    
+const ghostFrames = document.getElementById("ghosts");      
 
 let createRect = (x, y, width, height, color) => {
     canvasContext.fillStyle = color;               
@@ -15,7 +15,7 @@ const DIRECTION_BOTTOM = 1;
 
 let lives = 3;
 let ghostCount = 4;
-let ghostLocations = [
+let ghostImageLocations = [
     {x: 0, y: 0 },
     {x: 176, y: 0 },
     {x: 0, y: 121 },
@@ -23,15 +23,13 @@ let ghostLocations = [
 ];
 
 let fps = 30;
+let pacman;
 let ghosts = [];                                    
 let oneBlockSize = 20;                                      
-let wallColor = "#1515B5"; 
-let score = 0;  
-let foodCount = 220;                      
+let score = 0;                    
 let wallSpaceWidth = oneBlockSize / 1.3;                   
 let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;      
-let wallInnerColor = "black";                               
-let foodColor = "#FFB998";
+let wallInnerColor = "black";
 
 let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -64,7 +62,7 @@ let randomTargetsForGhosts = [
     {x: (map[0].length - 2) * oneBlockSize, y: (map.length - 2) * oneBlockSize }
 ];
 
-let createNewPacman =() => {
+let createNewPacman = () => {
     pacman = new Pacman(
         oneBlockSize,
         oneBlockSize,
@@ -75,58 +73,52 @@ let createNewPacman =() => {
 };
 
 let gameLoop = () => {
-    draw(); 
-    update();    
+    update();  
+    draw();   
+};
+
+let gameInterval = setInterval(gameLoop, 1000/fps);
+
+let restartPacmanAndGhosts = () => {
+    createNewPacman();
+    createGhosts();
+};
+
+let onGhostCollision = () => {
+    lives--;
+    restartPacmanAndGhosts();
+    if (lives == 0) {
+    }
 };
 
 let update = () => {
     pacman.moveProcess();
     pacman.eat();
-
-    for(let i = 0; i < ghosts.length; i++) {
-        ghosts[i].moveProcess();
-    }
-
-    if(pacman.checkGhostCollision()){
-        console.log("hit");
-        restartGame();
-    }
-
-    if(score >= (foodCount * 10)){
-        drawWin();
-        clearInterval(gameInterval);
+    updateGhosts();
+    
+    if (pacman.checkGhostCollision(ghosts)) {
+        onGhostCollision();
     }
 };
 
-let restartGame = () => {
-    createNewPacman();
-    createGhosts();
-    lives--;
-
-    if(lives == 0){
-        gameOver();
+let drawFoods = () => {
+    for(let i = 0; i < map.length; i++){
+        for(let j = 0; j < map[0].length; j++){
+            if(map[i][j] == 2){
+                createRect(
+                    j * oneBlockSize + oneBlockSize / 3, 
+                    i * oneBlockSize + oneBlockSize / 3, 
+                    oneBlockSize / 4, 
+                    oneBlockSize / 4, 
+                    "#FFB998"
+                );
+            }
+        }
     }
 };
 
-gameOver = () => {
-    drawGameOver();
-    clearInterval(gameInterval);
-};
-
-let drawGameOver = () => {
-    canvasContext.font = "20px Emulogic"
-    canvasContext.fillStyle = "white";
-    canvasContext.fillText("Game Over", 150, 200);
-};
-
-let drawWin = () => {
-    canvasContext.font = "20px Emulogic"
-    canvasContext.fillStyle = "white";
-    canvasContext.fillText("Winner", 150, 200);
-};
-
-let drawLives = () => {
-    canvasContext.font = "20px Emulogic"
+let drawRemainingLives = () => {
+    canvasContext.font = "20px Emulogic";
     canvasContext.fillStyle = "white";
     canvasContext.fillText(
         "Lives: ",
@@ -143,23 +135,7 @@ let drawLives = () => {
             285 + i * oneBlockSize, 
             oneBlockSize * map.length + 12,
             oneBlockSize, oneBlockSize
-        )
-    }
-};
-
-let drawFoods = () => {
-    for(let i = 0; i < map.length; i++){
-        for(let j = 0; j < map[0].length; j++){
-            if(map[i][j] == 2){
-                createRect(
-                    j * oneBlockSize + oneBlockSize / 3, 
-                    i * oneBlockSize + oneBlockSize / 3, 
-                    oneBlockSize / 4, 
-                    oneBlockSize / 4, 
-                    foodColor
-                );
-            }
-        }
+        );
     }
 };
 
@@ -171,19 +147,18 @@ let drawScore = () => {
         0,
         oneBlockSize * (map.length + 1) + 5
     );
-} 
-    
-let draw = () => {
-    createRect(0, 0, canvas.width, canvas.height, "black"); 
-    drawWalls();  
-    drawFoods();                                          
-    pacman.draw();
-    drawScore();                                        
-    drawGhosts();
-    drawLives();
 };
 
-let gameInterval = setInterval(gameLoop, 1000/fps);
+let draw = () => {
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    createRect(0, 0, canvas.width, canvas.height, "black"); 
+    drawWalls();  
+    drawFoods();
+    drawGhosts();                                          
+    pacman.draw();
+    drawScore();                                        
+    drawRemainingLives();
+};
 
 let drawWalls = () => {
     for(let i = 0; i  < map.length; i++){
@@ -194,7 +169,7 @@ let drawWalls = () => {
                     i * oneBlockSize, 
                     oneBlockSize, 
                     oneBlockSize, 
-                    wallColor
+                    "#1515B5"
                 );
 
                 if(j > 0 && map[i][j-1] == 1){
@@ -215,19 +190,19 @@ let drawWalls = () => {
                         wallInnerColor
                     );
                 }
-                if(i > 0 && map[i-1][j] == 1){
+                if(i < map.length - 1 && map[i+1][j] == 1){
                     createRect(
-                        j * oneBlockSize + wallOffset,
-                        i * oneBlockSize, 
+                        j * oneBlockSize + wallOffset, 
+                        i * oneBlockSize + wallOffset, 
                         wallSpaceWidth,
                         wallSpaceWidth + wallOffset,
                         wallInnerColor
                     );
                 }
-                if(i < map.length - 1 && map[i+1][j] == 1){
+                if(i > 0 && map[i-1][j] == 1){
                     createRect(
-                        j * oneBlockSize + wallOffset, 
-                        i * oneBlockSize + wallOffset, 
+                        j * oneBlockSize + wallOffset,
+                        i * oneBlockSize, 
                         wallSpaceWidth,
                         wallSpaceWidth + wallOffset,
                         wallInnerColor
@@ -239,8 +214,8 @@ let drawWalls = () => {
 };
 
 let createGhosts = () => {
-    ghost = [];
-    for(let i = 0; i < ghostCount; i++){
+    ghosts = [];
+    for(let i = 0; i < ghostCount * 2; i++){
         let newGhost = new Ghost(
             9 * oneBlockSize * (i%2 == 0 ? 0 : 1) * oneBlockSize,
             10 * oneBlockSize * (i%2 == 0 ? 0 : 1) * oneBlockSize,
